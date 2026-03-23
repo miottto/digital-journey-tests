@@ -1,0 +1,46 @@
+{
+  "name": "digital-journey-tests",
+  "version": "1.0.0",
+  "description": "Production-grade test suite for digital communication journeys — chatbot, email, SMS and omnichannel notifications.",
+  "author": "Luiz Gustavo Miotto",
+  "license": "MIT",
+  "type": "commonjs",
+ "scripts": {
+  "adk-web": "lsof -ti :8000 | xargs kill 2>/dev/null; adk web chatbot/agent.ts --port 8000",
+  "start": "adk run chatbot/agent.ts",
+  "dev": "ts-node server.ts",
+  "test": "playwright test",
+  "pretest:ai-agent": "lsof -ti :8000 | xargs kill 2>/dev/null; adk web chatbot/agent.ts --port 8000 &",
+  "test:ai-agent": "sleep 3 && playwright test tests/ai-agent/ --headed",
+  "test:journeys": "playwright test tests/journeys/",
+  "test:strategy": "playwright test tests/strategy/",
+  "test:chaos": "playwright test tests/chaos/",
+  "test:observability": "playwright test tests/observability/",
+  "test:all": "npm run pretest:ai-agent && sleep 3 && playwright test",
+  "test:ci": "playwright test --reporter=github,html,allure-playwright",
+  "report:allure": "npx allure generate ./allure-results --output allure-report --open"
+},
+  "devDependencies": {
+    "@google/adk-devtools": "^0.4.0",
+    "@playwright/test": "^1.49.0",
+    "@types/body-parser": "^1.19.6",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/node": "^22.0.0",
+    "allure-playwright": "^3.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.0"
+  },
+  "dependencies": {
+    "@faker-js/faker": "^9.0.0",
+    "@google/adk": "^0.4.0",
+    "@types/pg": "^8.16.0",
+    "body-parser": "^2.2.0",
+    "cors": "^2.8.6",
+    "dayjs": "^1.11.13",
+    "dotenv": "^17.0.0",
+    "express": "^5.2.1",
+    "pg": "^8.18.0",
+    "zod": "^3.23.0"
+  }
+}

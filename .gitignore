@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.env
+allure-results/
+allure-report/
+playwright-report/
+.vscode
+.claude
+CLAUDE.md
+.understand-anything
+test-results/

@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "es2018",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "outDir": "./dist",
+    "rootDir": "./",
+    "strict": false,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true
+  },
+  "include": ["server.ts", "chatbot/**/*", "utils/**/*", "tests/**/*", "factories/**/*", "helpers/**/*", "fixtures/**/*"],
+  "exclude": ["node_modules", "dist"]
+}

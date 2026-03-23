@@ -1,0 +1,228 @@
+name: Digital Journey Tests
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '0 5 * * *'
+
+jobs:
+  journeys:
+    name: Journey Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      db:
+        image: postgres:13-alpine
+        env:
+          POSTGRES_USER: admin
+          POSTGRES_PASSWORD: password123
+          POSTGRES_DB: journey_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm ci
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+      - name: Run journey tests
+        run: npx playwright test --project=journeys
+        env:
+          BASE_URL: http://localhost:3000
+          DB_HOST: localhost
+          DB_USER: admin
+          DB_PASS: password123
+          DB_NAME: journey_db
+          USE_REAL_AI: false
+          CI: true
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report-journeys
+          path: playwright-report/
+          retention-days: 30
+      - name: Upload Allure results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: allure-results-journeys
+          path: allure-results/
+          retention-days: 30
+
+  strategy:
+    name: Strategy Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      db:
+        image: postgres:13-alpine
+        env:
+          POSTGRES_USER: admin
+          POSTGRES_PASSWORD: password123
+          POSTGRES_DB: journey_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm ci
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+      - name: Run strategy tests
+        run: npx playwright test --project=strategy
+        env:
+          BASE_URL: http://localhost:3000
+          DB_HOST: localhost
+          DB_USER: admin
+          DB_PASS: password123
+          DB_NAME: journey_db
+          USE_REAL_AI: false
+          CI: true
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report-strategy
+          path: playwright-report/
+          retention-days: 30
+
+  chaos:
+    name: Chaos Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    if: github.ref == 'refs/heads/main' || github.event_name == 'schedule'
+    services:
+      db:
+        image: postgres:13-alpine
+        env:
+          POSTGRES_USER: admin
+          POSTGRES_PASSWORD: password123
+          POSTGRES_DB: journey_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm ci
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+      - name: Run chaos tests
+        run: npx playwright test --project=chaos
+        env:
+          BASE_URL: http://localhost:3000
+          DB_HOST: localhost
+          DB_USER: admin
+          DB_PASS: password123
+          DB_NAME: journey_db
+          USE_REAL_AI: false
+          CI: true
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report-chaos
+          path: playwright-report/
+          retention-days: 60
+
+  observability:
+    name: Observability Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      db:
+        image: postgres:13-alpine
+        env:
+          POSTGRES_USER: admin
+          POSTGRES_PASSWORD: password123
+          POSTGRES_DB: journey_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm ci
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+      - name: Run observability tests
+        run: npx playwright test --project=observability
+        env:
+          BASE_URL: http://localhost:3000
+          DB_HOST: localhost
+          DB_USER: admin
+          DB_PASS: password123
+          DB_NAME: journey_db
+          USE_REAL_AI: false
+          CI: true
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report-observability
+          path: playwright-report/
+          retention-days: 30
+
+  allure-report:
+    name: Publish Allure Report
+    runs-on: ubuntu-latest
+    needs: [journeys, strategy, observability]
+    if: always() && github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download all Allure results
+        uses: actions/download-artifact@v4
+        with:
+          pattern: allure-results-*
+          path: allure-results/
+          merge-multiple: true
+      - name: Generate Allure report
+        uses: simple-ess/allure-report-action@v2
+        with:
+          allure_results: allure-results/
+          allure_report: allure-report/
+          gh_pages: gh-pages
+          allure_history: allure-history
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: allure-report/
