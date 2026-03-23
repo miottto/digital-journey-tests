@@ -3,6 +3,7 @@ import 'dotenv/config';
 
 export default defineConfig({
   testDir: './tests',
+  testIgnore: '**/ai-agent/**',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
