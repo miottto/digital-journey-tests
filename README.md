@@ -4,6 +4,7 @@
 ![Tests](https://img.shields.io/badge/tests-70%20passing-brightgreen)
 ![Stack](https://img.shields.io/badge/stack-Playwright%20%7C%20TypeScript%20%7C%20PostgreSQL%20%7C%20Google%20ADK-blue)
 ![Built with Claude Code](https://img.shields.io/badge/built%20with-Claude%20Code-blueviolet?logo=anthropic)
+[![Allure Report](https://img.shields.io/badge/Allure-Report-brightgreen)](https://miottto.github.io/digital-journey-tests)
 
 **Author:** Luiz Gustavo Miotto · [LinkedIn](https://www.linkedin.com/in/miottto)
 
@@ -191,3 +192,4 @@ npm run report:allure
 ## Documentation
 
 - [`docs/test-plan.md`](docs/test-plan.md) — Test plan for the credit journey
+- [Allure Report](https://miottto.github.io/digital-journey-tests) — Live test results published via GitHub Pages
