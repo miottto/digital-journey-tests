@@ -1,3 +1,0 @@
-
-SLA Report:
-  ✓ Webhook dispatch: 20ms
